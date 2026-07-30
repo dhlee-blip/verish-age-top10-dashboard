@@ -1,0 +1,711 @@
+<title>국내 자사몰 연령대별 상품 TOP 10 대시보드</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #F1EFF5;
+    --surface: #FFFFFF;
+    --surface-2: #E7E2EC;
+    --surface-3: #DCD5E3;
+    --ink: #201A2E;
+    --ink-2: #5B5468;
+    --muted: #928AA1;
+    --hairline: rgba(32,26,46,0.12);
+    --hairline-strong: rgba(32,26,46,0.22);
+    --accent: #7C2C4C;
+    --accent-ink: #FFFFFF;
+    --accent-wash: #F3DEE6;
+    --good: #0ca30c;
+
+    --age-10: #CFE6EA; --age-20: #A9D2D9; --age-30: #7DB9C4;
+    --age-40: #4E9BAA; --age-50: #2C7C8C; --age-60: #145A68; --age-na: #ACA6B8;
+    --age-10-ink:#1E4448; --age-20-ink:#173A3F; --age-30-ink:#12363D;
+    --age-40-ink:#0E323A; --age-50-ink:#F1FAFB; --age-60-ink:#EAF7F8; --age-na-ink:#332E42;
+
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
+    --ghost: rgba(32,26,46,0.26);
+
+    --heat-1:#D98CA8; --heat-2:#DE9BB2; --heat-3:#E2A9BC; --heat-4:#E6B7C6; --heat-5:#EAC4CF;
+    --heat-6:#EDCFD8; --heat-7:#F0D9E0; --heat-8:#F2E2E7; --heat-9:#F5EBED; --heat-10:#F8F3F4;
+    --heat-ink: #4A1930;
+
+    --font-ui: system-ui, -apple-system, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg: #17131F; --surface: #211C2C; --surface-2: #2B2438; --surface-3: #362E45;
+      --ink: #EDEAF2; --ink-2: #BCB3C9; --muted: #8B84A0;
+      --hairline: rgba(237,234,242,0.10); --hairline-strong: rgba(237,234,242,0.18);
+      --accent: #D9799C; --accent-ink: #241019; --accent-wash: #3A2430;
+      --good: #3fcf6a;
+      --age-10:#2B4448; --age-20:#33565C; --age-30:#3D6E77; --age-40:#4B8892; --age-50:#5AA3AC; --age-60:#78C3CB; --age-na:#8880A0;
+      --age-10-ink:#DDF3F5; --age-20-ink:#E3F6F7; --age-30-ink:#EEFBFC; --age-40-ink:#F5FDFD; --age-50-ink:#181717; --age-60-ink:#101616; --age-na-ink:#F1EFF7;
+      --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+      --ghost: rgba(237,234,242,0.22);
+      --heat-1:#6E2E45; --heat-2:#632A3F; --heat-3:#582639; --heat-4:#4D2234; --heat-5:#421E2E;
+      --heat-6:#391B29; --heat-7:#301824; --heat-8:#28151F; --heat-9:#21131B; --heat-10:#1D1219;
+      --heat-ink: #F3D9E2;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #17131F; --surface: #211C2C; --surface-2: #2B2438; --surface-3: #362E45;
+    --ink: #EDEAF2; --ink-2: #BCB3C9; --muted: #8B84A0;
+    --hairline: rgba(237,234,242,0.10); --hairline-strong: rgba(237,234,242,0.18);
+    --accent: #D9799C; --accent-ink: #241019; --accent-wash: #3A2430;
+    --good: #3fcf6a;
+    --age-10:#2B4448; --age-20:#33565C; --age-30:#3D6E77; --age-40:#4B8892; --age-50:#5AA3AC; --age-60:#78C3CB; --age-na:#8880A0;
+    --age-10-ink:#DDF3F5; --age-20-ink:#E3F6F7; --age-30-ink:#EEFBFC; --age-40-ink:#F5FDFD; --age-50-ink:#181717; --age-60-ink:#101616; --age-na-ink:#F1EFF7;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+    --ghost: rgba(237,234,242,0.22);
+    --heat-1:#6E2E45; --heat-2:#632A3F; --heat-3:#582639; --heat-4:#4D2234; --heat-5:#421E2E;
+    --heat-6:#391B29; --heat-7:#301824; --heat-8:#28151F; --heat-9:#21131B; --heat-10:#1D1219;
+    --heat-ink: #F3D9E2;
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #F1EFF5; --surface: #FFFFFF; --surface-2: #E7E2EC; --surface-3: #DCD5E3;
+    --ink: #201A2E; --ink-2: #5B5468; --muted: #928AA1;
+    --hairline: rgba(32,26,46,0.12); --hairline-strong: rgba(32,26,46,0.22);
+    --accent: #7C2C4C; --accent-ink: #FFFFFF; --accent-wash: #F3DEE6;
+    --good: #0ca30c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .dash { max-width: 1180px; margin: 0 auto; padding: 40px 28px 80px; }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end;
+    gap: 20px; padding-bottom: 22px; border-bottom: 2px solid var(--ink);
+  }
+  .masthead h1 {
+    margin: 0 0 8px; font-size: 30px; font-weight: 800; letter-spacing: -0.01em;
+    text-wrap: balance; max-width: 22ch;
+  }
+  .masthead .kicker {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 10px;
+  }
+  .masthead .sub { margin: 0; color: var(--ink-2); font-size: 14.5px; max-width: 52ch; }
+  .meta-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2);
+    background: var(--surface-2); border: 1px solid var(--hairline); border-radius: 999px;
+    padding: 5px 12px 5px 10px; font-variant-numeric: tabular-nums;
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--good); flex: none; }
+  .badge b { color: var(--ink); font-weight: 700; font-family: var(--font-mono); }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 52px; }
+  .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .section-head .eyebrow {
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 6px;
+  }
+  .section-head h2 { margin: 0 0 6px; font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
+  .section-head p { margin: 0; color: var(--ink-2); font-size: 13.5px; max-width: 60ch; }
+
+  /* ---------- section A: card grid ---------- */
+  .card-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px;
+  }
+  .age-card {
+    background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px;
+    padding: 16px 16px 8px; border-top: 3px solid var(--card-c, var(--accent));
+  }
+  .age-card .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+  .age-card .age-label { font-weight: 800; font-size: 15px; }
+  .age-card .age-total { font-size: 11.5px; color: var(--muted); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .age-card .low-sample {
+    display: inline-block; margin: 4px 0 8px; font-size: 10.5px; color: var(--ink-2);
+    background: var(--surface-2); border-radius: 5px; padding: 2px 6px; font-weight: 600;
+  }
+  .rank-row {
+    display: grid; grid-template-columns: 16px 1fr auto; align-items: center; gap: 8px;
+    padding: 5px 0; border-top: 1px solid var(--hairline);
+  }
+  .rank-row:first-of-type { border-top: none; }
+  .rank-row .rk { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .rank-row.top .rk { color: var(--card-c, var(--accent)); font-weight: 800; }
+  .rank-row .nm { font-size: 12.8px; min-width: 0; }
+  .rank-row .nm .bar { height: 4px; border-radius: 2px; background: var(--card-c, var(--accent)); opacity: .55; margin-top: 4px; }
+  .rank-row.top .nm { font-weight: 700; }
+  .rank-row .qn { text-align: right; font-family: var(--font-mono); font-size: 11.5px; font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+  .rank-row .qn small { color: var(--muted); font-size: 10px; }
+
+  /* ---------- section B: trend ---------- */
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab-btn {
+    font-family: var(--font-ui); font-size: 12.5px; font-weight: 700; color: var(--ink-2);
+    background: var(--surface-2); border: 1px solid transparent; border-radius: 7px;
+    padding: 7px 12px; cursor: pointer;
+  }
+  .tab-btn:hover { background: var(--surface-3); }
+  .tab-btn.active { background: var(--tab-c); color: var(--tab-ink); }
+  .tab-btn.plain.active { background: var(--accent); color: var(--accent-ink); }
+  .tab-btn:focus-visible, button:focus-visible, .toggle-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .chart-card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; padding: 20px 22px 16px; }
+  .low-sample-note {
+    font-size: 12.5px; color: var(--ink-2); background: var(--surface-2); border-radius: 7px;
+    padding: 8px 12px; margin-bottom: 14px; display: none;
+  }
+  .low-sample-note.show { display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+  .legend-item .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .legend-item .sw.ghost-sw { background: var(--ghost); }
+
+  #bumpSvg { width: 100%; height: auto; overflow: visible; }
+  .bump-line { fill: none; stroke-width: 2.2; transition: opacity .15s, stroke-width .15s; }
+  .bump-line.ghost { stroke: var(--ghost); stroke-width: 1.4; stroke-dasharray: 1 0; }
+  .bump-dot { transition: r .12s, opacity .15s; cursor: pointer; }
+  .bump-dot.ghost { fill: var(--ghost); }
+  .bump-label { font-family: var(--font-ui); font-size: 11px; font-weight: 700; }
+  .axis-label { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted); }
+  .axis-line { stroke: var(--hairline-strong); stroke-width: 1; }
+  .dim { opacity: .18; }
+
+  .toggle-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+  .toggle-btn {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 700; color: var(--accent);
+    background: none; border: 1px solid var(--hairline-strong); border-radius: 7px; padding: 6px 11px; cursor: pointer;
+  }
+  .toggle-btn:hover { background: var(--surface-2); }
+  .table-view { margin-top: 14px; overflow-x: auto; }
+  .table-view table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .table-view th, .table-view td { padding: 7px 10px; text-align: center; border-bottom: 1px solid var(--hairline); font-variant-numeric: tabular-nums; }
+  .table-view th { text-align: left; color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+  .table-view td:first-child, .table-view th:first-child { text-align: left; font-weight: 600; }
+
+  /* ---------- section C: matrix ---------- */
+  .matrix-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; }
+  table.matrix { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 12.5px; }
+  table.matrix th, table.matrix td { padding: 8px 10px; border-bottom: 1px solid var(--hairline); }
+  table.matrix thead th {
+    text-align: center; font-size: 11px; color: var(--ink-2); font-weight: 700;
+    position: sticky; top: 0; background: var(--surface); border-bottom: 2px solid var(--hairline-strong);
+  }
+  table.matrix thead th:first-child, table.matrix thead th:nth-child(2) { text-align: left; }
+  table.matrix td.prod { text-align: left; font-weight: 600; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+  table.matrix td.breadth { white-space: nowrap; }
+  .breadth-wrap { display: flex; align-items: center; gap: 7px; }
+  .breadth-bar { width: 48px; height: 5px; border-radius: 3px; background: var(--surface-3); overflow: hidden; flex: none; }
+  .breadth-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+  .breadth-n { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  td.cell { text-align: center; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; cursor: default; }
+  td.cell .rankpill { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 22px; border-radius: 5px; color: var(--heat-ink); }
+  td.cell.empty { color: var(--muted); font-weight: 400; }
+
+  /* ---------- tooltip ---------- */
+  .tooltip {
+    position: fixed; z-index: 50; pointer-events: none; background: var(--ink); color: var(--bg);
+    font-size: 12px; padding: 8px 11px; border-radius: 7px; max-width: 220px; line-height: 1.45;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.22); transform: translate(-50%, calc(-100% - 10px));
+  }
+  .tooltip b { display: block; font-size: 12.5px; margin-bottom: 2px; }
+  .tooltip .tt-meta { opacity: .75; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--hairline); font-size: 11.5px; color: var(--muted); }
+
+  @media (max-width: 640px) {
+    .masthead { align-items: flex-start; }
+    .meta-badges { align-items: flex-start; }
+    .masthead h1 { font-size: 24px; }
+  }
+</style>
+
+<div class="dash">
+
+  <header class="masthead">
+    <div>
+      <p class="kicker">Verish · 자사몰 판매 분석</p>
+      <h1>연령대별 상품 TOP 10 대시보드</h1>
+      <p class="sub">Cafe24 자사몰 주문 데이터 기준, 연령대별 최다 판매 상품을 매주 집계합니다. 취소·환불 건은 집계에서 제외됩니다.</p>
+    </div>
+    <div class="meta-badges">
+      <span class="badge"><span class="dot"></span>최신 주차 <b id="latestWeekBadge">–</b></span>
+      <span class="badge">매주 월요일 자동 갱신 · 3주 누적</span>
+    </div>
+  </header>
+
+  <section id="section-snapshot">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">스냅샷</p>
+        <h2>연령대별 TOP 10</h2>
+        <p>선택한 주(<span id="snapshotWeekLabel"></span>) 기준 판매수량 순위입니다. 막대 길이는 해당 연령대 내 1위 대비 판매수량 비율입니다.</p>
+      </div>
+      <div class="tabs" id="snapshotWeekTabs"></div>
+    </div>
+    <div class="card-grid" id="cardGrid"></div>
+  </section>
+
+  <section id="section-trend">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">트렌드</p>
+        <h2>3주간 순위 변화</h2>
+        <p>연령대를 선택하면 최근 3주간 TOP 10 내 순위 흐름을 볼 수 있습니다. 색이 있는 선은 이번 주 상위 5개 상품, 회색 선은 그 외 상품입니다.</p>
+      </div>
+      <div class="tabs" id="ageTabs"></div>
+    </div>
+    <div class="chart-card">
+      <p class="low-sample-note" id="lowSampleNote"></p>
+      <div class="legend" id="bumpLegend"></div>
+      <svg id="bumpSvg" viewBox="0 0 760 340" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="toggle-row"><button class="toggle-btn" id="toggleTableBtn" aria-expanded="false">표로 보기</button></div>
+      <div class="table-view" id="bumpTableWrap" hidden></div>
+    </div>
+  </section>
+
+  <section id="section-matrix">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">교차 분석</p>
+        <h2>연령대 간 공통 인기 vs 특화 상품</h2>
+        <p>가장 최근 주 기준, 얼마나 많은 연령대의 TOP 10에 동시에 들었는지로 정렬했습니다. 숫자는 해당 연령대 내 순위, 진할수록 높은 순위입니다.</p>
+      </div>
+    </div>
+    <div class="matrix-scroll">
+      <table class="matrix" id="matrixTable"></table>
+    </div>
+  </section>
+
+  <footer>
+    데이터: BigQuery <code>verish-processed-raw.analytics.cafe24_order_detail_product</code> · 취소/환불 제외 검증 완료 ·
+    연령대는 회원 <code>age_range</code> 5세 구간을 10세 단위로 재구성, 비회원·생일 미등록은 “미상”으로 표시.
+  </footer>
+</div>
+
+<div class="tooltip" id="tooltip" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var WEEKS = [
+    { key: "w1", label: "07.06–07.12", full: "2026-07-06 ~ 2026-07-12" },
+    { key: "w2", label: "07.13–07.19", full: "2026-07-13 ~ 2026-07-19" },
+    { key: "w3", label: "07.20–07.26", full: "2026-07-20 ~ 2026-07-26" }
+  ];
+  var LATEST = "w3";
+
+  var AGE_ORDER = ["10", "20", "30", "40", "50", "60", "na"];
+  var AGE_META = {
+    "10": { label: "10대" }, "20": { label: "20대" }, "30": { label: "30대" },
+    "40": { label: "40대" }, "50": { label: "50대" }, "60": { label: "60대 이상" },
+    "na": { label: "미상(비회원 등)" }
+  };
+
+  // [rank, name, qty, orders]
+  var RAW = {
+    w1: {
+      "20": [[1,"아이스온 브리프 팬티",957,221],[2,"쿨핏 브라 볼륨핏",560,375],[3,"아이스온 푸시업 브라",541,164],[4,"아이스온 에어리 브라",409,139],[5,"쿨핏 팬티 볼륨핏",324,190],[6,"쿨핏 브라 시그니처",320,198],[7,"쿨핏 브라 볼륨핏 PLUS",296,201],[8,"쿨핏 팬티",214,125],[9,"쿨핏 브라 오프숄더 볼륨",193,184],[10,"푸시업 누드브라",171,170]],
+      "30": [[1,"아이스온 브리프 팬티",680,166],[2,"쿨핏 브라 볼륨핏",586,363],[3,"아이스온 푸시업 브라",402,135],[4,"쿨핏 브라 볼륨핏 PLUS",307,193],[5,"아이스온 에어리 브라",278,106],[6,"쿨핏 브라 시그니처",264,150],[7,"쿨핏 팬티 볼륨핏",263,156],[8,"쿨핏 팬티",197,108],[9,"푸시업 누드브라",171,164],[10,"쿨핏 브라 컴포트 BIG",133,90]],
+      "40": [[1,"쿨핏 브라 볼륨핏",326,191],[2,"아이스온 브리프 팬티",271,72],[3,"쿨핏 브라 볼륨핏 PLUS",188,122],[4,"쿨핏 브라 시그니처",158,89],[5,"아이스온 푸시업 브라",145,54],[6,"아이스온 에어리 브라",139,54],[7,"쿨핏 팬티 볼륨핏",112,69],[8,"쿨핏 팬티",104,55],[9,"쿨핏 브라 오프숄더",93,74],[10,"(26SS) 모달 브라탑",84,55]],
+      "50": [[1,"아이스온 브리프 팬티",197,47],[2,"쿨핏 브라 볼륨핏",145,89],[3,"아이스온 에어리 브라",125,47],[4,"아이스온 푸시업 브라",118,38],[5,"쿨핏 브라 시그니처",116,60],[6,"쿨핏 브라 볼륨핏 PLUS",90,59],[7,"쿨핏 팬티 볼륨핏",57,31],[8,"쿨핏 팬티",48,24],[9,"아이스온 스트랩 노후크 브라",45,21],[10,"(26SS) 모달 브라탑",31,21]],
+      "60": [[1,"쿨핏 브라 시그니처",13,8],[1,"쿨핏 팬티",13,6],[3,"아이스온 브리프 팬티",12,3],[4,"쿨핏 브라 볼륨핏 PLUS",11,6],[5,"쿨핏 브라 볼륨핏",9,7],[6,"아이스온 에어리 브라",7,5],[7,"쿨핏 브라 컴포트 BIG 미니마이저",6,2],[8,"쿨핏 팬티 볼륨핏",5,3],[8,"아이스온 스트랩 노후크 브라",5,3],[8,"소프트 코튼 크루넥 숏슬리브 탑",5,1]],
+      "na": [[1,"아이스온 브리프 팬티",225,58],[2,"아이스온 푸시업 브라",177,66],[3,"쿨핏 브라 볼륨핏",172,105],[4,"쿨핏 브라 시그니처",125,74],[5,"쿨핏 브라 볼륨핏 PLUS",121,76],[6,"쿨핏 팬티 볼륨핏",103,48],[7,"아이스온 에어리 브라",97,41],[8,"쿨핏 팬티",67,36],[9,"푸시업 누드브라",51,50],[10,"쿨핏 브라 오프숄더 볼륨",48,44]]
+    },
+    w2: {
+      "10": [[1,"에센셜핏 백리스 브라렛",2,1],[1,"(26SS) 모달 브라탑",2,1],[3,"에센셜핏 스트링 치키 팬티",1,1],[3,"에센셜핏 홀터 브라렛",1,1]],
+      "20": [[1,"아이스온 브리프 팬티",998,226],[2,"쿨핏 브라 볼륨핏",684,450],[3,"아이스온 푸시업 브라",660,214],[4,"쿨핏 브라 오프숄더 볼륨",463,444],[5,"아이스온 에어리 브라",385,159],[6,"쿨핏 팬티 볼륨핏",380,217],[7,"쿨핏 브라 시그니처",350,226],[8,"쿨핏 팬티",300,154],[9,"쿨핏 브라 볼륨핏 PLUS",260,172],[10,"에센셜핏 홀터 브라렛",226,191]],
+      "30": [[1,"아이스온 브리프 팬티",741,169],[2,"쿨핏 브라 볼륨핏",600,341],[3,"아이스온 푸시업 브라",498,166],[4,"쿨핏 브라 시그니처",387,201],[5,"쿨핏 팬티",291,153],[6,"(26SS) 모달 브라탑",289,226],[7,"쿨핏 브라 오프숄더 볼륨",288,258],[8,"아이스온 에어리 브라",287,120],[9,"에센셜핏 홀터 브라렛",276,219],[10,"쿨핏 팬티 볼륨핏",274,145]],
+      "40": [[1,"아이스온 브리프 팬티",388,91],[2,"쿨핏 브라 볼륨핏",336,204],[3,"(26SS) 모달 브라탑",327,264],[4,"(26SS) 모달 U넥 브라탑",248,218],[5,"아이스온 푸시업 브라",238,96],[6,"쿨핏 브라 시그니처",226,121],[7,"(26SS) 모달 크롭 브라탑",201,181],[8,"아이스온 에어리 브라",191,79],[9,"쿨핏 브라 볼륨핏 PLUS",190,120],[10,"에센셜핏 홀터 브라렛",186,143]],
+      "50": [[1,"쿨핏 브라 볼륨핏",180,110],[2,"아이스온 브리프 팬티",176,40],[3,"쿨핏 브라 시그니처",137,77],[4,"아이스온 에어리 브라",103,35],[5,"아이스온 푸시업 브라",102,43],[6,"(26SS) 모달 브라탑",78,55],[7,"쿨핏 브라 볼륨핏 PLUS",72,52],[8,"쿨핏 팬티 볼륨핏",68,34],[9,"쿨핏 팬티",63,35],[10,"에센셜핏 스쿱 브라렛",60,39]],
+      "60": [[1,"쿨핏 브라 볼륨핏",22,15],[2,"쿨핏 브라 시그니처",19,10],[3,"쿨핏 브라 볼륨핏 PLUS",12,9],[4,"아이스온 푸시업 브라",9,7],[5,"쿨핏 브라 오프숄더 볼륨",8,8],[5,"쿨핏 팬티 볼륨핏",8,4],[7,"에센셜핏 스쿱 브라렛",7,5],[8,"(26SS) 모달 브라탑",6,5],[8,"아이스온 노후크 브라",6,4],[8,"쿨핏 브라 오프숄더",6,5],[8,"쿨핏 팬티 컴포트 BIG",6,4]],
+      "na": [[1,"아이스온 브리프 팬티",275,59],[2,"아이스온 푸시업 브라",220,78],[3,"쿨핏 브라 볼륨핏",218,133],[4,"쿨핏 브라 시그니처",118,71],[5,"쿨핏 브라 오프숄더 볼륨",114,109],[6,"쿨핏 브라 볼륨핏 PLUS",104,67],[7,"쿨핏 팬티",99,50],[8,"에센셜핏 홀터 브라렛",88,71],[9,"아이스온 에어리 브라",72,32],[10,"에센셜핏 백리스 브라렛",71,53]]
+    },
+    w3: {
+      "10": [[1,"아이스온 에어리 브라",3,1],[2,"쿨핏 브라 오프숄더 볼륨",1,1]],
+      "20": [[1,"아이스온 브리프 팬티",852,167],[2,"쿨핏 브라 볼륨핏",585,376],[3,"쿨핏 브라 오프숄더 볼륨",509,483],[4,"아이스온 푸시업 브라",440,144],[5,"쿨핏 브라 시그니처",354,209],[6,"쿨핏 팬티",324,177],[7,"쿨핏 팬티 볼륨핏",303,163],[8,"아이스온 에어리 브라",272,110],[9,"쿨핏 브라 볼륨핏 PLUS",216,152],[10,"쿨핏 브라 오프숄더",170,150]],
+      "30": [[1,"아이스온 브리프 팬티",625,119],[2,"쿨핏 브라 볼륨핏",580,331],[3,"쿨핏 브라 오프숄더 볼륨",391,363],[4,"쿨핏 브라 시그니처",377,205],[5,"쿨핏 팬티",368,172],[6,"아이스온 푸시업 브라",306,98],[7,"쿨핏 브라 볼륨핏 PLUS",295,186],[8,"(26SS) 모달 브라탑",253,190],[9,"쿨핏 팬티 볼륨핏",249,136],[10,"에센셜핏 백리스 브라렛",228,181]],
+      "40": [[1,"아이스온 브리프 팬티",407,80],[2,"쿨핏 브라 볼륨핏",296,182],[3,"(26SS) 모달 브라탑",261,217],[4,"아이스온 푸시업 브라",211,79],[5,"(26SS) 모달 U넥 브라탑",181,167],[6,"쿨핏 브라 볼륨핏 PLUS",180,116],[7,"쿨핏 브라 시그니처",174,108],[8,"아이스온 에어리 브라",159,67],[9,"에센셜핏 백리스 브라렛",157,109],[10,"쿨핏 브라 오프숄더 볼륨",149,130],[10,"쿨핏 팬티",149,82]],
+      "50": [[1,"아이스온 브리프 팬티",136,28],[2,"쿨핏 브라 시그니처",128,70],[3,"쿨핏 브라 볼륨핏",121,84],[4,"아이스온 푸시업 브라",81,27],[5,"아이스온 에어리 브라",77,30],[6,"쿨핏 브라 볼륨핏 PLUS",64,37],[7,"쿨핏 브라 오프숄더 볼륨",63,58],[8,"(26SS) 모달 브라탑",56,43],[9,"에센셜핏 백리스 브라렛",54,40],[10,"쿨핏 팬티",53,31]],
+      "60": [[1,"아이스온 브리프 팬티",21,3],[2,"쿨핏 브라 볼륨핏",20,11],[3,"에센셜핏 스트링 치키 팬티",14,3],[4,"쿨핏 브라 시그니처",13,7],[5,"(26SS) 모달 브라탑",8,4],[5,"쿨핏 브라 볼륨 노후크",8,5],[7,"쿨핏 브라 볼륨핏 PLUS",7,7],[7,"쿨핏 브라 컴포트 BIG 미니마이저",7,4],[9,"아이스온 에어리 브라",6,4],[10,"쿨핏 팬티 볼륨핏",5,3]],
+      "na": [[1,"아이스온 브리프 팬티",213,44],[2,"쿨핏 브라 볼륨핏",195,115],[3,"쿨핏 브라 시그니처",143,79],[4,"아이스온 푸시업 브라",142,50],[5,"쿨핏 브라 볼륨핏 PLUS",122,81],[6,"쿨핏 브라 오프숄더 볼륨",112,104],[7,"쿨핏 팬티",108,55],[8,"(26SS) 모달 브라탑",78,57],[9,"에센셜핏 백리스 브라렛",74,53],[10,"쿨핏 팬티 볼륨핏",68,36]]
+    }
+  };
+
+  function rowsFor(week, age) {
+    return (RAW[week] && RAW[week][age] ? RAW[week][age] : []).map(function (r) {
+      return { rank: r[0], name: r[1], qty: r[2], orders: r[3] };
+    });
+  }
+
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var tooltip = $("#tooltip");
+
+  function showTip(x, y, html) {
+    tooltip.innerHTML = html;
+    tooltip.style.left = x + "px";
+    tooltip.style.top = y + "px";
+    tooltip.hidden = false;
+  }
+  function hideTip() { tooltip.hidden = true; }
+
+  // ---------------- masthead ----------------
+  var latestMeta = WEEKS.filter(function (w) { return w.key === LATEST; })[0];
+  $("#latestWeekBadge").textContent = latestMeta.label;
+
+  // ---------------- Section A: snapshot cards ----------------
+  var currentSnapshotWeek = LATEST;
+
+  function renderSnapshotTabs() {
+    var wrap = $("#snapshotWeekTabs");
+    wrap.innerHTML = "";
+    WEEKS.forEach(function (w) {
+      var btn = document.createElement("button");
+      btn.className = "tab-btn plain" + (w.key === currentSnapshotWeek ? " active" : "");
+      btn.textContent = w.label + (w.key === LATEST ? " · 최신" : "");
+      btn.addEventListener("click", function () {
+        currentSnapshotWeek = w.key;
+        renderSnapshotTabs();
+        renderCards();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function renderCards() {
+    var weekMeta = WEEKS.filter(function (w) { return w.key === currentSnapshotWeek; })[0];
+    $("#snapshotWeekLabel").textContent = weekMeta.full + (currentSnapshotWeek === LATEST ? " · 최신" : "");
+
+    var grid = $("#cardGrid");
+    grid.innerHTML = "";
+    AGE_ORDER.forEach(function (age) {
+      var rows = rowsFor(currentSnapshotWeek, age).sort(function (a, b) { return a.rank - b.rank; });
+      var card = document.createElement("div");
+      card.className = "age-card";
+      card.style.setProperty("--card-c", "var(--age-" + age + ")");
+
+      var totalQty = rows.reduce(function (s, r) { return s + r.qty; }, 0);
+      var maxQty = rows.length ? rows[0].qty : 0;
+      // maxQty should reflect true rank-1 qty even if rank list isn't sorted by qty in rare tie cases
+      rows.forEach(function (r) { if (r.qty > maxQty) maxQty = r.qty; });
+
+      var head = document.createElement("div");
+      head.className = "card-head";
+      head.innerHTML = '<span class="age-label">' + AGE_META[age].label + '</span>' +
+        '<span class="age-total">TOP ' + rows.length + '건 · 합계 ' + totalQty.toLocaleString() + '개</span>';
+      card.appendChild(head);
+
+      if (totalQty > 0 && totalQty < 30) {
+        var note = document.createElement("span");
+        note.className = "low-sample";
+        note.textContent = "표본 적음 (주간 " + totalQty + "개)";
+        card.appendChild(note);
+      }
+
+      rows.forEach(function (r, i) {
+        var row = document.createElement("div");
+        row.className = "rank-row" + (r.rank === 1 ? " top" : "");
+        var barPct = maxQty ? Math.max(6, Math.round((r.qty / maxQty) * 100)) : 0;
+        row.innerHTML =
+          '<span class="rk">' + r.rank + '</span>' +
+          '<span class="nm">' + r.name + '<span class="bar" style="width:' + barPct + '%"></span></span>' +
+          '<span class="qn">' + r.qty.toLocaleString() + '개<br><small>' + r.orders.toLocaleString() + '건 주문</small></span>';
+        card.appendChild(row);
+      });
+
+      if (!rows.length) {
+        var empty = document.createElement("div");
+        empty.className = "rank-row";
+        empty.innerHTML = '<span></span><span class="nm" style="color:var(--muted)">해당 주 데이터 없음</span><span></span>';
+        card.appendChild(empty);
+      }
+
+      grid.appendChild(card);
+    });
+  }
+
+  // ---------------- Section B: bump chart ----------------
+  var SERIES_COLORS = ["s1", "s2", "s3", "s4", "s5"];
+  var cssVar = function (name) { return getComputedStyle(document.documentElement).getPropertyValue("--" + name).trim(); };
+
+  var currentAge = "20";
+
+  function renderTabs() {
+    var wrap = $("#ageTabs");
+    wrap.innerHTML = "";
+    AGE_ORDER.forEach(function (age) {
+      var btn = document.createElement("button");
+      btn.className = "tab-btn" + (age === currentAge ? " active" : "");
+      btn.textContent = AGE_META[age].label;
+      btn.style.setProperty("--tab-c", "var(--age-" + age + ")");
+      btn.style.setProperty("--tab-ink", "var(--age-" + age + "-ink)");
+      btn.addEventListener("click", function () {
+        currentAge = age;
+        renderTabs();
+        renderBump();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function buildSeries(age) {
+    // gather all products appearing in any week for this age group
+    var byProduct = {};
+    WEEKS.forEach(function (w) {
+      rowsFor(w.key, age).forEach(function (r) {
+        if (!byProduct[r.name]) byProduct[r.name] = {};
+        byProduct[r.name][w.key] = r; // may overwrite on tie-duplicate name (not expected)
+      });
+    });
+    var latestTop = rowsFor(LATEST, age).filter(function (r) { return r.rank <= 5; }).map(function (r) { return r.name; });
+
+    var series = Object.keys(byProduct).map(function (name) {
+      var colorIdx = latestTop.indexOf(name);
+      return {
+        name: name,
+        points: WEEKS.map(function (w) { return byProduct[name][w.key] || null; }),
+        highlighted: colorIdx > -1,
+        colorVar: colorIdx > -1 ? SERIES_COLORS[colorIdx] : null
+      };
+    });
+    // stable order: highlighted first (in latestTop order), then ghosts alphabetically
+    series.sort(function (a, b) {
+      if (a.highlighted && b.highlighted) return latestTop.indexOf(a.name) - latestTop.indexOf(b.name);
+      if (a.highlighted) return -1;
+      if (b.highlighted) return 1;
+      return a.name.localeCompare(b.name, "ko");
+    });
+    return series;
+  }
+
+  function renderLegend(series) {
+    var wrap = $("#bumpLegend");
+    wrap.innerHTML = "";
+    var hasGhost = false;
+    series.forEach(function (s) {
+      if (!s.highlighted) { hasGhost = true; return; }
+      var item = document.createElement("span");
+      item.className = "legend-item";
+      item.innerHTML = '<span class="sw" style="background:var(--' + s.colorVar + ')"></span>' + s.name;
+      wrap.appendChild(item);
+    });
+    if (hasGhost) {
+      var g = document.createElement("span");
+      g.className = "legend-item";
+      g.innerHTML = '<span class="sw ghost-sw"></span>그 외 (이번 주 top5 밖)';
+      wrap.appendChild(g);
+    }
+  }
+
+  var PAD = { l: 34, r: 20, t: 16, b: 30 };
+  var W = 760, H = 340;
+
+  function xFor(i) { return PAD.l + (i * (W - PAD.l - PAD.r)) / (WEEKS.length - 1); }
+  function yFor(rank) { return PAD.t + ((rank - 1) * (H - PAD.t - PAD.b)) / 9; } // rank 1..10
+
+  function renderBump() {
+    var age = currentAge;
+    var series = buildSeries(age);
+    var svg = $("#bumpSvg");
+    svg.innerHTML = "";
+    renderLegend(series);
+
+    var totalQty = rowsFor(LATEST, age).reduce(function (s, r) { return s + r.qty; }, 0);
+    var noteEl = $("#lowSampleNote");
+    if (totalQty > 0 && totalQty < 30) {
+      noteEl.textContent = AGE_META[age].label + "은(는) 최근 주 판매량이 " + totalQty + "개로 매우 적어, 주차별 순위 변동을 참고용으로만 봐주세요.";
+      noteEl.classList.add("show");
+    } else if (totalQty === 0) {
+      noteEl.textContent = AGE_META[age].label + "은(는) 최근 주 판매 데이터가 없습니다.";
+      noteEl.classList.add("show");
+    } else {
+      noteEl.classList.remove("show");
+    }
+
+    var ns = "http://www.w3.org/2000/svg";
+    function el(tag, attrs) {
+      var e = document.createElementNS(ns, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    // axis: rank gridlines 1,5,10
+    [1, 5, 10].forEach(function (rk) {
+      var y = yFor(rk);
+      svg.appendChild(el("line", { x1: PAD.l, x2: W - PAD.r, y1: y, y2: y, class: "axis-line" }));
+      var t = el("text", { x: PAD.l - 8, y: y + 3, class: "axis-label", "text-anchor": "end" });
+      t.textContent = rk + "위";
+      svg.appendChild(t);
+    });
+    // x labels
+    WEEKS.forEach(function (w, i) {
+      var t = el("text", { x: xFor(i), y: H - 8, class: "axis-label", "text-anchor": "middle" });
+      t.textContent = w.label;
+      svg.appendChild(t);
+    });
+
+    // jitter for same-rank ties within a week
+    function jitterFor(week, rank, name, allSeries) {
+      var tied = [];
+      allSeries.forEach(function (s) {
+        var p = s.points[WEEKS.findIndex(function (w) { return w.key === week; })];
+        if (p && p.rank === rank) tied.push(s.name);
+      });
+      if (tied.length <= 1) return 0;
+      tied.sort(function (a, b) { return a.localeCompare(b, "ko"); });
+      var idx = tied.indexOf(name);
+      var span = 10;
+      return (idx - (tied.length - 1) / 2) * (span / Math.max(1, tied.length - 1) || span);
+    }
+
+    var ghostGroup = el("g", {});
+    var mainGroup = el("g", {});
+    svg.appendChild(ghostGroup);
+    svg.appendChild(mainGroup);
+
+    series.forEach(function (s) {
+      var color = s.highlighted ? "var(--" + s.colorVar + ")" : "var(--ghost)";
+      var group = s.highlighted ? mainGroup : ghostGroup;
+      var pts = [];
+      s.points.forEach(function (p, i) {
+        if (!p) { pts.push(null); return; }
+        var jx = jitterFor(WEEKS[i].key, p.rank, s.name, series);
+        pts.push({ x: xFor(i) + jx, y: yFor(p.rank), data: p });
+      });
+
+      // line segments between consecutive present points
+      for (var i = 0; i < pts.length - 1; i++) {
+        if (pts[i] && pts[i + 1]) {
+          var path = el("path", {
+            d: "M" + pts[i].x + "," + pts[i].y + "L" + pts[i + 1].x + "," + pts[i + 1].y,
+            class: "bump-line" + (s.highlighted ? "" : " ghost"),
+            stroke: color,
+            "data-name": s.name
+          });
+          group.appendChild(path);
+        }
+      }
+      // dots
+      pts.forEach(function (pt, i) {
+        if (!pt) return;
+        var dot = el("circle", {
+          cx: pt.x, cy: pt.y, r: s.highlighted ? 4.5 : 3,
+          class: "bump-dot" + (s.highlighted ? "" : " ghost"),
+          fill: color, "data-name": s.name
+        });
+        dot.addEventListener("mousemove", function (ev) {
+          highlight(s.name);
+          showTip(ev.clientX, ev.clientY,
+            "<b>" + s.name + "</b>" +
+            '<span class="tt-meta">' + WEEKS[i].label + " · " + pt.data.rank + "위 · " + pt.data.qty.toLocaleString() + "개 (" + pt.data.orders.toLocaleString() + "건)</span>");
+        });
+        dot.addEventListener("mouseleave", function () { unhighlight(); hideTip(); });
+        group.appendChild(dot);
+      });
+      // direct label at last present point, highlighted only
+      if (s.highlighted) {
+        var lastIdx = -1;
+        for (var j = pts.length - 1; j >= 0; j--) { if (pts[j]) { lastIdx = j; break; } }
+        if (lastIdx > -1) {
+          var lbl = el("text", {
+            x: pts[lastIdx].x + 8, y: pts[lastIdx].y + 4, class: "bump-label", fill: color
+          });
+          lbl.textContent = s.name.length > 14 ? s.name.slice(0, 13) + "…" : s.name;
+          mainGroup.appendChild(lbl);
+        }
+      }
+    });
+
+    function highlight(name) {
+      svg.querySelectorAll("[data-name]").forEach(function (n) {
+        if (n.getAttribute("data-name") !== name) n.classList.add("dim");
+      });
+    }
+    function unhighlight() {
+      svg.querySelectorAll(".dim").forEach(function (n) { n.classList.remove("dim"); });
+    }
+
+    renderBumpTable(series);
+  }
+
+  function renderBumpTable(series) {
+    var wrap = $("#bumpTableWrap");
+    var html = '<table><thead><tr><th>상품</th>' +
+      WEEKS.map(function (w) { return "<th>" + w.label + "</th>"; }).join("") + "</tr></thead><tbody>";
+    series.forEach(function (s) {
+      html += "<tr><td>" + s.name + "</td>" + s.points.map(function (p) {
+        return "<td>" + (p ? p.rank + "위 (" + p.qty.toLocaleString() + ")" : "–") + "</td>";
+      }).join("") + "</tr>";
+    });
+    html += "</tbody></table>";
+    wrap.innerHTML = html;
+  }
+
+  $("#toggleTableBtn").addEventListener("click", function () {
+    var wrap = $("#bumpTableWrap");
+    var willShow = wrap.hidden;
+    wrap.hidden = !willShow;
+    this.textContent = willShow ? "차트로 보기" : "표로 보기";
+    this.setAttribute("aria-expanded", String(willShow));
+  });
+
+  // ---------------- Section C: matrix ----------------
+  function renderMatrix() {
+    var byProduct = {};
+    AGE_ORDER.forEach(function (age) {
+      rowsFor(LATEST, age).forEach(function (r) {
+        if (!byProduct[r.name]) byProduct[r.name] = {};
+        byProduct[r.name][age] = r;
+      });
+    });
+    var products = Object.keys(byProduct).map(function (name) {
+      var cells = byProduct[name];
+      var count = AGE_ORDER.filter(function (a) { return cells[a]; }).length;
+      var avgRank = AGE_ORDER.reduce(function (s, a) { return s + (cells[a] ? cells[a].rank : 0); }, 0) / count;
+      return { name: name, cells: cells, count: count, avgRank: avgRank };
+    });
+    products.sort(function (a, b) { return b.count - a.count || a.avgRank - b.avgRank; });
+
+    var table = $("#matrixTable");
+    var thead = "<thead><tr><th>상품</th><th>공통도</th>" +
+      AGE_ORDER.map(function (a) { return "<th>" + AGE_META[a].label + "</th>"; }).join("") + "</tr></thead>";
+    var rowsHtml = products.map(function (p) {
+      var pct = Math.round((p.count / AGE_ORDER.length) * 100);
+      var cellsHtml = AGE_ORDER.map(function (a) {
+        var c = p.cells[a];
+        if (!c) return '<td class="cell empty">·</td>';
+        var heat = "var(--heat-" + c.rank + ")";
+        return '<td class="cell" data-name="' + p.name + '" data-age="' + AGE_META[a].label + '" data-qty="' + c.qty +
+          '" data-orders="' + c.orders + '"><span class="rankpill" style="background:' + heat + '">' + c.rank + "</span></td>";
+      }).join("");
+      return "<tr><td class=\"prod\">" + p.name + "</td>" +
+        '<td class="breadth"><div class="breadth-wrap"><div class="breadth-bar"><i style="width:' + pct + '%"></i></div>' +
+        '<span class="breadth-n">' + p.count + "/" + AGE_ORDER.length + "</span></div></td>" +
+        cellsHtml + "</tr>";
+    }).join("");
+    table.innerHTML = thead + "<tbody>" + rowsHtml + "</tbody>";
+
+    table.querySelectorAll("td.cell[data-name]").forEach(function (td) {
+      td.addEventListener("mousemove", function (ev) {
+        showTip(ev.clientX, ev.clientY,
+          "<b>" + td.getAttribute("data-name") + "</b>" +
+          '<span class="tt-meta">' + td.getAttribute("data-age") + " · " + Number(td.getAttribute("data-qty")).toLocaleString() +
+          "개 · " + Number(td.getAttribute("data-orders")).toLocaleString() + "건 주문</span>");
+      });
+      td.addEventListener("mouseleave", hideTip);
+    });
+  }
+
+  renderSnapshotTabs();
+  renderCards();
+  renderTabs();
+  renderBump();
+  renderMatrix();
+})();
+</script>
