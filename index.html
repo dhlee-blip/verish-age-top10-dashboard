@@ -27,6 +27,8 @@
     --heat-1:#D98CA8; --heat-2:#DE9BB2; --heat-3:#E2A9BC; --heat-4:#E6B7C6; --heat-5:#EAC4CF;
     --heat-6:#EDCFD8; --heat-7:#F0D9E0; --heat-8:#F2E2E7; --heat-9:#F5EBED; --heat-10:#F8F3F4;
     --heat-ink: #4A1930;
+    --delta-up: #0ca30c; --delta-down: #C23A3A;
+    --rev-bar: #2C7C8C; --rev-bar-2: #4E9BAA;
 
     --font-ui: system-ui, -apple-system, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif;
     --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
@@ -46,6 +48,8 @@
       --heat-1:#6E2E45; --heat-2:#632A3F; --heat-3:#582639; --heat-4:#4D2234; --heat-5:#421E2E;
       --heat-6:#391B29; --heat-7:#301824; --heat-8:#28151F; --heat-9:#21131B; --heat-10:#1D1219;
       --heat-ink: #F3D9E2;
+      --delta-up: #3fcf6a; --delta-down: #E2685F;
+      --rev-bar: #5AA3AC; --rev-bar-2: #78C3CB;
     }
   }
   :root[data-theme="dark"] {
@@ -62,6 +66,8 @@
     --heat-1:#6E2E45; --heat-2:#632A3F; --heat-3:#582639; --heat-4:#4D2234; --heat-5:#421E2E;
     --heat-6:#391B29; --heat-7:#301824; --heat-8:#28151F; --heat-9:#21131B; --heat-10:#1D1219;
     --heat-ink: #F3D9E2;
+    --delta-up: #3fcf6a; --delta-down: #E2685F;
+    --rev-bar: #5AA3AC; --rev-bar-2: #78C3CB;
   }
   :root[data-theme="light"] {
     color-scheme: light;
@@ -70,6 +76,8 @@
     --hairline: rgba(32,26,46,0.12); --hairline-strong: rgba(32,26,46,0.22);
     --accent: #7C2C4C; --accent-ink: #FFFFFF; --accent-wash: #F3DEE6;
     --good: #0ca30c;
+    --delta-up: #0ca30c; --delta-down: #C23A3A;
+    --rev-bar: #2C7C8C; --rev-bar-2: #4E9BAA;
   }
 
   * { box-sizing: border-box; }
@@ -114,6 +122,35 @@
   }
   .section-head h2 { margin: 0 0 6px; font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
   .section-head p { margin: 0; color: var(--ink-2); font-size: 13.5px; max-width: 60ch; }
+
+  /* ---------- section overview: stat cards + revenue chart ---------- */
+  .compare-toggle { display: flex; align-items: center; gap: 10px; }
+  .compare-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 16px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; padding: 16px 18px; }
+  .stat-card .stat-label { font-size: 12.5px; color: var(--ink-2); font-weight: 600; margin-bottom: 8px; }
+  .stat-card .stat-value { font-size: 26px; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .stat-card .stat-delta { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; margin-top: 8px; font-family: var(--font-mono); }
+  .stat-card .stat-delta.up { color: var(--delta-up); }
+  .stat-card .stat-delta.down { color: var(--delta-down); }
+  .stat-card .stat-delta .compare-basis-label { color: var(--muted); font-weight: 500; font-family: var(--font-ui); margin-left: 2px; }
+  .stat-card .stat-delta.flat { color: var(--muted); }
+
+  .overview-chart-card { padding-top: 18px; }
+  .overview-controls { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+  .range-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .date-input {
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); background: var(--surface-2);
+    border: 1px solid var(--hairline); border-radius: 7px; padding: 6px 8px;
+  }
+  .range-sep { color: var(--muted); font-size: 12px; }
+  .range-summary { font-size: 12.5px; color: var(--ink-2); margin: 0 0 12px; font-variant-numeric: tabular-nums; }
+  .no-data-note { text-align: center; color: var(--muted); font-size: 13px; padding: 30px 0; }
+
+  #revenueSvg { width: 100%; height: auto; overflow: visible; }
+  .rev-bar { fill: var(--rev-bar); cursor: pointer; }
+  .rev-bar:hover { fill: var(--rev-bar-2); }
 
   /* ---------- section A: card grid ---------- */
   .card-grid {
@@ -239,6 +276,37 @@
     </div>
   </header>
 
+  <section id="section-overview">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">전체 요약</p>
+        <h2>일별 매출 현황</h2>
+        <p>Cafe24 자사몰 전체 주문 기준입니다(연령대 TOP10 집계와는 별개). 취소·환불 건은 제외됩니다.</p>
+      </div>
+      <div class="compare-toggle">
+        <span class="compare-label">대비 기준</span>
+        <div class="tabs" id="compareTabs"></div>
+      </div>
+    </div>
+
+    <div class="stat-grid" id="statGrid"></div>
+
+    <div class="chart-card overview-chart-card">
+      <div class="overview-controls">
+        <div class="tabs" id="granularityTabs"></div>
+        <div class="range-controls">
+          <input type="date" id="rangeStart" class="date-input" aria-label="시작일" />
+          <span class="range-sep">~</span>
+          <input type="date" id="rangeEnd" class="date-input" aria-label="종료일" />
+          <div class="tabs" id="rangeQuickTabs"></div>
+        </div>
+      </div>
+      <p class="range-summary" id="rangeSummary"></p>
+      <svg id="revenueSvg" viewBox="0 0 760 260" preserveAspectRatio="xMidYMid meet"></svg>
+      <p class="no-data-note" id="noRevenueNote" hidden>아직 매출 데이터가 쌓이지 않았습니다 — 시트에 "일별매출" 탭이 채워지면 자동으로 표시됩니다.</p>
+    </div>
+  </section>
+
   <section id="section-snapshot">
     <div class="section-head">
       <div>
@@ -301,6 +369,10 @@
     "na": { label: "미상(비회원 등)" }
   };
 
+  // REVENUE_DATA_START — auto-generated by regenerate_dashboard.mjs from the "일별매출" sheet tab. Do not hand-edit between these markers.
+  var REVENUE = [];
+  // REVENUE_DATA_END
+
   // RAW_DATA_START — auto-generated by regenerate_dashboard.mjs from the Google Sheet. Do not hand-edit between these markers.
   // keys are week-start dates (YYYY-MM-DD, Monday). [rank, name, qty, orders]
   var RAW = {
@@ -358,6 +430,256 @@
     return (RAW[week] && RAW[week][age] ? RAW[week][age] : []).map(function (r) {
       return { rank: r[0], name: r[1], qty: r[2], orders: r[3] };
     });
+  }
+
+  // ---------------- Section overview: stat cards + revenue chart ----------------
+  var REVENUE_SORTED = REVENUE.slice().sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+  var REVENUE_BY_DATE = {};
+  REVENUE_SORTED.forEach(function (r) { REVENUE_BY_DATE[r.d] = r; });
+
+  var COMPARE_BASES = [
+    { key: "day", label: "전일", days: 1 },
+    { key: "week", label: "전주", days: 7 },
+    { key: "month", label: "전월", days: 30 },
+  ];
+  var currentCompareBasis = "day";
+
+  function addDays_(dateStr, n) {
+    var d = new Date(dateStr + "T00:00:00Z");
+    return new Date(d.getTime() + n * 86400000).toISOString().slice(0, 10);
+  }
+
+  function renderCompareTabs() {
+    var wrap = $("#compareTabs");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    COMPARE_BASES.forEach(function (b) {
+      var btn = document.createElement("button");
+      btn.className = "tab-btn plain" + (b.key === currentCompareBasis ? " active" : "");
+      btn.textContent = b.label;
+      btn.addEventListener("click", function () {
+        currentCompareBasis = b.key;
+        renderCompareTabs();
+        renderStatCards();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function fmtWon_(n) { return "₩" + Math.round(n).toLocaleString(); }
+  function fmtNum_(n) { return Math.round(n).toLocaleString(); }
+
+  function deltaHtml_(cur, prev, basisLabel) {
+    if (prev == null || prev === 0) {
+      return '<span class="stat-delta flat">비교 데이터 없음</span>';
+    }
+    var pct = ((cur - prev) / prev) * 100;
+    var dir = pct > 0.05 ? "up" : pct < -0.05 ? "down" : "flat";
+    var arrow = dir === "up" ? "▲" : dir === "down" ? "▼" : "–";
+    return '<span class="stat-delta ' + dir + '">' + arrow + " " + Math.abs(pct).toFixed(1) + "%" +
+      '<span class="compare-basis-label">' + basisLabel + " 대비</span></span>";
+  }
+
+  function renderStatCards() {
+    var grid = $("#statGrid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    if (!REVENUE_SORTED.length) return;
+
+    var latest = REVENUE_SORTED[REVENUE_SORTED.length - 1];
+    var basis = COMPARE_BASES.filter(function (b) { return b.key === currentCompareBasis; })[0];
+    var prevDate = addDays_(latest.d, -basis.days);
+    var prev = REVENUE_BY_DATE[prevDate] || null;
+
+    var cards = [
+      { label: "최신일(" + latest.d.slice(5).replace("-", ".") + ") 합계 매출", cur: latest.revenue, prevVal: prev ? prev.revenue : null, fmt: fmtWon_ },
+      { label: "주문건수", cur: latest.orders, prevVal: prev ? prev.orders : null, fmt: function (n) { return fmtNum_(n) + "건"; } },
+      { label: "객단가 (주문 전체 결제금액 평균)", cur: latest.aov, prevVal: prev ? prev.aov : null, fmt: fmtWon_ },
+    ];
+
+    cards.forEach(function (c) {
+      var card = document.createElement("div");
+      card.className = "stat-card";
+      card.innerHTML =
+        '<div class="stat-label">' + c.label + "</div>" +
+        '<div class="stat-value">' + c.fmt(c.cur) + "</div>" +
+        deltaHtml_(c.cur, c.prevVal, basis.label);
+      grid.appendChild(card);
+    });
+  }
+
+  // ---- 보기 단위 + 날짜 범위 + 매출 추이 차트 ----
+  var GRANULARITIES = [
+    { key: "day", label: "일" },
+    { key: "week", label: "주" },
+    { key: "month", label: "월" },
+  ];
+  var currentGranularity = "day";
+  var currentRangeStart = null;
+  var currentRangeEnd = null;
+
+  function renderGranularityTabs() {
+    var wrap = $("#granularityTabs");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    GRANULARITIES.forEach(function (g) {
+      var btn = document.createElement("button");
+      btn.className = "tab-btn plain" + (g.key === currentGranularity ? " active" : "");
+      btn.textContent = g.label;
+      btn.addEventListener("click", function () {
+        currentGranularity = g.key;
+        renderGranularityTabs();
+        renderOverviewChart();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function renderRangeQuickTabs() {
+    var wrap = $("#rangeQuickTabs");
+    if (!wrap || !REVENUE_SORTED.length) return;
+    wrap.innerHTML = "";
+    var minDate = REVENUE_SORTED[0].d;
+    var maxDate = REVENUE_SORTED[REVENUE_SORTED.length - 1].d;
+    var quicks = [
+      { label: "전체", start: minDate, end: maxDate },
+      { label: "최근 7일", start: addDays_(maxDate, -6), end: maxDate },
+    ];
+    quicks.forEach(function (q) {
+      var btn = document.createElement("button");
+      var isActive = currentRangeStart === q.start && currentRangeEnd === q.end;
+      btn.className = "tab-btn plain" + (isActive ? " active" : "");
+      btn.textContent = q.label;
+      btn.addEventListener("click", function () {
+        currentRangeStart = q.start;
+        currentRangeEnd = q.end;
+        $("#rangeStart").value = q.start;
+        $("#rangeEnd").value = q.end;
+        renderRangeQuickTabs();
+        renderOverviewChart();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function rowsInRange_() {
+    if (!currentRangeStart || !currentRangeEnd) return [];
+    return REVENUE_SORTED.filter(function (r) { return r.d >= currentRangeStart && r.d <= currentRangeEnd; });
+  }
+
+  function isoWeekStart_(dateStr) {
+    var d = new Date(dateStr + "T00:00:00Z");
+    var dow = d.getUTCDay();
+    var daysSinceMonday = (dow + 6) % 7;
+    return new Date(d.getTime() - daysSinceMonday * 86400000).toISOString().slice(0, 10);
+  }
+
+  function aggregateRows_(rows, granularity) {
+    if (granularity === "day") {
+      return rows.map(function (r) { return { key: r.d, label: r.d.slice(5).replace("-", "."), revenue: r.revenue, orders: r.orders, aov: r.aov }; });
+    }
+    var buckets = {};
+    var order = [];
+    rows.forEach(function (r) {
+      var key = granularity === "week" ? isoWeekStart_(r.d) : r.d.slice(0, 7);
+      if (!buckets[key]) { buckets[key] = { key: key, revenue: 0, orders: 0 }; order.push(key); }
+      buckets[key].revenue += r.revenue;
+      buckets[key].orders += r.orders;
+    });
+    return order.map(function (key) {
+      var b = buckets[key];
+      var label = granularity === "week" ? (key.slice(5).replace("-", ".") + "~") : key.slice(0, 7);
+      return { key: key, label: label, revenue: b.revenue, orders: b.orders, aov: b.orders ? Math.round(b.revenue / b.orders) : 0 };
+    });
+  }
+
+  function renderOverviewChart() {
+    renderRangeQuickTabs();
+    var svg = $("#revenueSvg");
+    var note = $("#noRevenueNote");
+    if (!svg) return;
+
+    if (!REVENUE_SORTED.length) {
+      svg.innerHTML = "";
+      if (note) note.hidden = false;
+      $("#rangeSummary").textContent = "";
+      return;
+    }
+    if (note) note.hidden = true;
+
+    var rows = rowsInRange_();
+    var totalRevenue = rows.reduce(function (s, r) { return s + r.revenue; }, 0);
+    var totalOrders = rows.reduce(function (s, r) { return s + r.orders; }, 0);
+    $("#rangeSummary").textContent = rows.length + "일 · 합계 " + fmtWon_(totalRevenue) + " · " + fmtNum_(totalOrders) + "건";
+
+    var buckets = aggregateRows_(rows, currentGranularity);
+
+    var ns = "http://www.w3.org/2000/svg";
+    function el(tag, attrs) {
+      var e = document.createElementNS(ns, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+    svg.innerHTML = "";
+    if (!buckets.length) return;
+
+    var W = 760, H = 260, PAD = { l: 56, r: 16, t: 16, b: 30 };
+    var maxRev = Math.max.apply(null, buckets.map(function (b) { return b.revenue; })) || 1;
+    var innerW = W - PAD.l - PAD.r;
+    var innerH = H - PAD.t - PAD.b;
+    var gap = 6;
+    var barW = Math.max(4, innerW / buckets.length - gap);
+
+    [0, 0.5, 1].forEach(function (frac) {
+      var y = PAD.t + innerH * (1 - frac);
+      svg.appendChild(el("line", { x1: PAD.l, x2: W - PAD.r, y1: y, y2: y, class: "axis-line" }));
+      var t = el("text", { x: PAD.l - 8, y: y + 3, class: "axis-label", "text-anchor": "end" });
+      t.textContent = fmtWon_(maxRev * frac).replace("₩", "");
+      svg.appendChild(t);
+    });
+
+    buckets.forEach(function (b, i) {
+      var x = PAD.l + i * (innerW / buckets.length) + gap / 2;
+      var h = (b.revenue / maxRev) * innerH;
+      var y = PAD.t + innerH - h;
+      var rect = el("rect", { x: x, y: y, width: barW, height: Math.max(1, h), rx: 3, class: "rev-bar" });
+      rect.addEventListener("mousemove", function (ev) {
+        showTip(ev.clientX, ev.clientY,
+          "<b>" + b.label + "</b>" +
+          '<span class="tt-meta">' + fmtWon_(b.revenue) + " · " + fmtNum_(b.orders) + "건 · 객단가 " + fmtWon_(b.aov) + "</span>");
+      });
+      rect.addEventListener("mouseleave", hideTip);
+      svg.appendChild(rect);
+
+      if (buckets.length <= 14 || i % Math.ceil(buckets.length / 14) === 0) {
+        var lbl = el("text", { x: x + barW / 2, y: H - 8, class: "axis-label", "text-anchor": "middle" });
+        lbl.textContent = b.label;
+        svg.appendChild(lbl);
+      }
+    });
+  }
+
+  function initOverview_() {
+    renderCompareTabs();
+    renderStatCards();
+    renderGranularityTabs();
+
+    if (REVENUE_SORTED.length) {
+      var maxDate = REVENUE_SORTED[REVENUE_SORTED.length - 1].d;
+      currentRangeStart = addDays_(maxDate, -6);
+      currentRangeEnd = maxDate;
+      $("#rangeStart").value = currentRangeStart;
+      $("#rangeEnd").value = currentRangeEnd;
+      $("#rangeStart").addEventListener("change", function () {
+        currentRangeStart = this.value;
+        renderOverviewChart();
+      });
+      $("#rangeEnd").addEventListener("change", function () {
+        currentRangeEnd = this.value;
+        renderOverviewChart();
+      });
+    }
+    renderOverviewChart();
   }
 
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
@@ -718,6 +1040,7 @@
     });
   }
 
+  initOverview_();
   renderSnapshotTabs();
   renderCards();
   renderTabs();

@@ -46,6 +46,17 @@ for (const line of lines) {
   rowCount++;
 }
 
+// matches a revenue row like: | 2026-07-29 | 284 | 6082379 | 21417 |
+const revRe = /^\|\s*(\d{4}-\d{2}-\d{2})\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|/;
+const revenueByDate = {};
+for (const line of lines) {
+  const m = line.match(revRe);
+  if (!m) continue;
+  const [, date, orders, revenue, aov] = m;
+  revenueByDate[date] = { date, orders: Number(orders), revenue: Number(revenue), aov: Number(aov) };
+}
+const revenueRows = Object.values(revenueByDate).sort((a, b) => (a.date < b.date ? -1 : 1));
+
 if (rowCount === 0) {
   console.error("no data rows parsed from sheet export -- aborting without touching index.html");
   process.exit(1);
@@ -67,16 +78,32 @@ const serialized =
   weekKeys.map((wk) => `    "${wk}": {\n${serializeWeek(data[wk])}\n    }`).join(",\n") +
   "\n  };\n  // RAW_DATA_END";
 
-const html = readFileSync(indexPath, "utf8");
+const revenueSerialized =
+  "var REVENUE = [\n" +
+  revenueRows
+    .map((r) => `    { d: "${r.date}", orders: ${r.orders}, revenue: ${r.revenue}, aov: ${r.aov} }`)
+    .join(",\n") +
+  (revenueRows.length ? "\n  " : "") +
+  "];\n  // REVENUE_DATA_END";
+
+let html = readFileSync(indexPath, "utf8");
+
 const blockRe = /var RAW = \{[\s\S]*?\n {2}\};\n {2}\/\/ RAW_DATA_END/;
 if (!blockRe.test(html)) {
   throw new Error(`could not find RAW_DATA markers in ${indexPath}`);
 }
-const updated = html.replace(blockRe, serialized);
-writeFileSync(indexPath, updated, "utf8");
+html = html.replace(blockRe, serialized);
+
+const revBlockRe = /var REVENUE = \[[\s\S]*?\];\n {2}\/\/ REVENUE_DATA_END/;
+if (!revBlockRe.test(html)) {
+  throw new Error(`could not find REVENUE_DATA markers in ${indexPath}`);
+}
+html = html.replace(revBlockRe, revenueSerialized);
+
+writeFileSync(indexPath, html, "utf8");
 
 console.log(
   `updated ${indexPath}: ${weekKeys.length} week(s), ${rowCount} row(s) parsed` +
     (skipped ? `, ${skipped} row(s) skipped (unknown age label)` : "") +
-    `. weeks: ${weekKeys.join(", ")}`
+    `. weeks: ${weekKeys.join(", ")}. revenue days: ${revenueRows.length}`
 );
