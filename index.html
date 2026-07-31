@@ -655,18 +655,23 @@
     svg.innerHTML = "";
     if (!buckets.length) return;
 
-    var W = 760, H = 260, PAD = { l: 56, r: 16, t: 16, b: 30 };
+    var W = 760, H = 260, PAD = { l: 46, r: 16, t: 16, b: 30 };
     var maxRev = Math.max.apply(null, buckets.map(function (b) { return b.revenue; })) || 1;
     var innerW = W - PAD.l - PAD.r;
     var innerH = H - PAD.t - PAD.b;
     var gap = 6;
     var barW = Math.max(4, innerW / buckets.length - gap);
 
+    function fmtAxisWon_(n) {
+      if (n >= 10000) return Math.round(n / 10000).toLocaleString() + "만";
+      return Math.round(n).toLocaleString();
+    }
+
     [0, 0.5, 1].forEach(function (frac) {
       var y = PAD.t + innerH * (1 - frac);
       svg.appendChild(el("line", { x1: PAD.l, x2: W - PAD.r, y1: y, y2: y, class: "axis-line" }));
       var t = el("text", { x: PAD.l - 8, y: y + 3, class: "axis-label", "text-anchor": "end" });
-      t.textContent = fmtWon_(maxRev * frac).replace("₩", "");
+      t.textContent = fmtAxisWon_(maxRev * frac);
       svg.appendChild(t);
     });
 
