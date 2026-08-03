@@ -25,18 +25,34 @@ const text = readFileSync(sheetTextPath, "utf8");
 const lines = text.split("\n");
 
 // matches a data row like: | 2026-07-06 | 2026-07-12 | 20대 | 1 | 아이스온 브리프 팬티 | 957 | 221 |
-const rowRe = /^\|\s*(\d{4}-\d{2}-\d{2})\s*\|\s*\d{4}-\d{2}-\d{2}\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|/;
+// the in-progress week gets a fresh cumulative snapshot appended daily (week-end date advances
+// while week-start stays put), so we capture week-end too and keep only the latest snapshot per week.
+const rowRe = /^\|\s*(\d{4}-\d{2}-\d{2})\s*\|\s*(\d{4}-\d{2}-\d{2})\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|/;
+
+const rawRows = [];
+const latestWeekEnd = {};
+for (const line of lines) {
+  const m = line.match(rowRe);
+  if (!m) continue;
+  const [, weekStart, weekEnd, ageLabel, rank, name, qty, orders] = m;
+  rawRows.push({ weekStart, weekEnd, ageLabel, rank, name, qty, orders });
+  if (!latestWeekEnd[weekStart] || weekEnd > latestWeekEnd[weekStart]) {
+    latestWeekEnd[weekStart] = weekEnd;
+  }
+}
 
 const data = {};
 let rowCount = 0;
 let skipped = 0;
-for (const line of lines) {
-  const m = line.match(rowRe);
-  if (!m) continue;
-  const [, weekStart, ageLabel, rank, name, qty, orders] = m;
+let staleSnapshotRowsDropped = 0;
+for (const { weekStart, weekEnd, ageLabel, rank, name, qty, orders } of rawRows) {
+  if (weekEnd !== latestWeekEnd[weekStart]) {
+    staleSnapshotRowsDropped++;
+    continue;
+  }
   const ageCode = AGE_LABEL_TO_CODE[ageLabel.trim()];
   if (!ageCode) {
-    console.error(`unknown age label "${ageLabel}" -- row skipped: ${line}`);
+    console.error(`unknown age label "${ageLabel}" -- row skipped`);
     skipped++;
     continue;
   }
@@ -105,5 +121,6 @@ writeFileSync(indexPath, html, "utf8");
 console.log(
   `updated ${indexPath}: ${weekKeys.length} week(s), ${rowCount} row(s) parsed` +
     (skipped ? `, ${skipped} row(s) skipped (unknown age label)` : "") +
+    (staleSnapshotRowsDropped ? `, ${staleSnapshotRowsDropped} row(s) dropped (superseded by a later in-week snapshot)` : "") +
     `. weeks: ${weekKeys.join(", ")}. revenue days: ${revenueRows.length}`
 );
