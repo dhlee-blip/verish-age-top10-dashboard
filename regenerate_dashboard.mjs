@@ -25,31 +25,38 @@ const text = readFileSync(sheetTextPath, "utf8");
 const lines = text.split("\n");
 
 // matches a data row like: | 2026-07-06 | 2026-07-12 | 20대 | 1 | 아이스온 브리프 팬티 | 957 | 221 |
-// the in-progress week gets a fresh cumulative snapshot appended daily (week-end date advances
-// while week-start stays put), so we capture week-end too and keep only the latest snapshot per week.
+// the in-progress (not-yet-finished) week gets a fresh cumulative snapshot appended daily
+// (week-end date advances while week-start stays put, until it finally reaches week-start + 6
+// days on the closing Sunday). We only want fully-closed Mon-Sun weeks on the dashboard, so we
+// keep exactly the rows where week-end - week-start === 6 days and drop everything else --
+// no need to hand-filter the sheet export before running this script.
 const rowRe = /^\|\s*(\d{4}-\d{2}-\d{2})\s*\|\s*(\d{4}-\d{2}-\d{2})\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|/;
 
+function daysBetween(startStr, endStr) {
+  const toUTC = (s) => {
+    const [y, mo, d] = s.split("-").map(Number);
+    return Date.UTC(y, mo - 1, d);
+  };
+  return Math.round((toUTC(endStr) - toUTC(startStr)) / 86400000);
+}
+
 const rawRows = [];
-const latestWeekEnd = {};
+let incompleteWeekRowsDropped = 0;
 for (const line of lines) {
   const m = line.match(rowRe);
   if (!m) continue;
   const [, weekStart, weekEnd, ageLabel, rank, name, qty, orders] = m;
-  rawRows.push({ weekStart, weekEnd, ageLabel, rank, name, qty, orders });
-  if (!latestWeekEnd[weekStart] || weekEnd > latestWeekEnd[weekStart]) {
-    latestWeekEnd[weekStart] = weekEnd;
+  if (daysBetween(weekStart, weekEnd) !== 6) {
+    incompleteWeekRowsDropped++;
+    continue;
   }
+  rawRows.push({ weekStart, weekEnd, ageLabel, rank, name, qty, orders });
 }
 
 const data = {};
 let rowCount = 0;
 let skipped = 0;
-let staleSnapshotRowsDropped = 0;
-for (const { weekStart, weekEnd, ageLabel, rank, name, qty, orders } of rawRows) {
-  if (weekEnd !== latestWeekEnd[weekStart]) {
-    staleSnapshotRowsDropped++;
-    continue;
-  }
+for (const { weekStart, ageLabel, rank, name, qty, orders } of rawRows) {
   const ageCode = AGE_LABEL_TO_CODE[ageLabel.trim()];
   if (!ageCode) {
     console.error(`unknown age label "${ageLabel}" -- row skipped`);
@@ -121,6 +128,6 @@ writeFileSync(indexPath, html, "utf8");
 console.log(
   `updated ${indexPath}: ${weekKeys.length} week(s), ${rowCount} row(s) parsed` +
     (skipped ? `, ${skipped} row(s) skipped (unknown age label)` : "") +
-    (staleSnapshotRowsDropped ? `, ${staleSnapshotRowsDropped} row(s) dropped (superseded by a later in-week snapshot)` : "") +
+    (incompleteWeekRowsDropped ? `, ${incompleteWeekRowsDropped} row(s) dropped (in-progress week, not yet Mon-Sun complete)` : "") +
     `. weeks: ${weekKeys.join(", ")}. revenue days: ${revenueRows.length}`
 );
