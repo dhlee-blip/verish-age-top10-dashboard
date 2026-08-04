@@ -217,12 +217,13 @@
   .axis-line { stroke: var(--hairline-strong); stroke-width: 1; }
   .dim { opacity: .18; }
 
-  .toggle-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+  .toggle-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
   .toggle-btn {
     font-family: var(--font-ui); font-size: 12px; font-weight: 700; color: var(--accent);
     background: none; border: 1px solid var(--hairline-strong); border-radius: 7px; padding: 6px 11px; cursor: pointer;
   }
   .toggle-btn:hover { background: var(--surface-2); }
+  .toggle-btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
   .table-view { margin-top: 14px; overflow-x: auto; }
   .table-view table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   .table-view th, .table-view td { padding: 7px 10px; text-align: center; border-bottom: 1px solid var(--hairline); font-variant-numeric: tabular-nums; }
@@ -335,7 +336,7 @@
       <div>
         <p class="eyebrow">트렌드</p>
         <h2 id="trendTitle">주간 순위 변화</h2>
-        <p>연령대를 선택하면 최근 <span id="trendWeekCount"></span>주간 TOP 10 내 순위 흐름을 볼 수 있습니다. 색이 있는 선은 이번 주 상위 5개 상품, 회색 선은 그 외 상품입니다.</p>
+        <p>연령대를 선택하면 최근 <span id="trendWeekCount"></span>주간 TOP 10 내 순위 흐름을 볼 수 있습니다. 색이 있는 선은 이번 주 상위 5개 상품입니다. 나머지 상품은 기본적으로 숨겨져 있습니다.</p>
       </div>
       <div class="tabs" id="ageTabs"></div>
     </div>
@@ -343,7 +344,10 @@
       <p class="low-sample-note" id="lowSampleNote"></p>
       <div class="legend" id="bumpLegend"></div>
       <svg id="bumpSvg" viewBox="0 0 760 340" preserveAspectRatio="xMidYMid meet"></svg>
-      <div class="toggle-row"><button class="toggle-btn" id="toggleTableBtn" aria-expanded="false">표로 보기</button></div>
+      <div class="toggle-row">
+        <button class="toggle-btn" id="toggleGhostBtn" aria-pressed="false">그 외 상품 표시</button>
+        <button class="toggle-btn" id="toggleTableBtn" aria-expanded="false">표로 보기</button>
+      </div>
       <div class="table-view" id="bumpTableWrap" hidden></div>
     </div>
   </section>
@@ -919,6 +923,7 @@
   var cssVar = function (name) { return getComputedStyle(document.documentElement).getPropertyValue("--" + name).trim(); };
 
   var currentAge = "20";
+  var showGhosts = false;
 
   function renderTabs() {
     var wrap = $("#ageTabs");
@@ -1053,13 +1058,15 @@
     svg.appendChild(ghostGroup);
     svg.appendChild(mainGroup);
 
-    series.forEach(function (s) {
+    var visibleSeries = showGhosts ? series : series.filter(function (s) { return s.highlighted; });
+
+    visibleSeries.forEach(function (s) {
       var color = s.highlighted ? "var(--" + s.colorVar + ")" : "var(--ghost)";
       var group = s.highlighted ? mainGroup : ghostGroup;
       var pts = [];
       s.points.forEach(function (p, i) {
         if (!p) { pts.push(null); return; }
-        var jx = jitterFor(WEEKS[i].key, p.rank, s.name, series);
+        var jx = jitterFor(WEEKS[i].key, p.rank, s.name, visibleSeries);
         pts.push({ x: xFor(i) + jx, y: yFor(p.rank), data: p });
       });
 
@@ -1125,6 +1132,13 @@
     wrap.hidden = !willShow;
     this.textContent = willShow ? "차트로 보기" : "표로 보기";
     this.setAttribute("aria-expanded", String(willShow));
+  });
+
+  $("#toggleGhostBtn").addEventListener("click", function () {
+    showGhosts = !showGhosts;
+    this.textContent = showGhosts ? "그 외 상품 숨기기" : "그 외 상품 표시";
+    this.setAttribute("aria-pressed", String(showGhosts));
+    renderBump();
   });
 
   // ---------------- Section C: matrix ----------------
