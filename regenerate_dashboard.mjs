@@ -105,6 +105,55 @@ function buildRawData(rows) {
 const sku = buildRawData(rawRowsByLevel.sku);
 const product = buildRawData(rawRowsByLevel.product);
 
+// Drive's read_file_content is a "natural language representation" of the sheet and can silently
+// truncate very large exports (documented behavior, not an error) -- as the sheet accumulates more
+// weeks, this has been observed to drop the tail rows of a table (typically the last age group,
+// "미상(비회원 등)", for the most recent week, since rows are ordered oldest-week-first).
+// To make this resilient: read whatever RAW_SKU/RAW_PRODUCT is already embedded in index.html
+// *before* overwriting it, and for any (week, age group) that's missing from this run's freshly
+// parsed data, carry over the previous value instead of blanking it out. A week/group only ever
+// gets overwritten when the new fetch actually contains rows for it.
+function readExistingRaw(html, varName) {
+  const m = html.match(new RegExp(`var ${varName} = (\\{[\\s\\S]*?\\n {2}\\});\\n {2}// ${varName}_DATA_END`));
+  if (!m) return {};
+  try {
+    return Function(`"use strict"; return (${m[1]});`)();
+  } catch {
+    return {};
+  }
+}
+
+function mergeWithExisting(fresh, existing, label) {
+  const merged = JSON.parse(JSON.stringify(existing));
+  const fallbackWeeks = [];
+  for (const week of Object.keys(fresh)) {
+    if (!merged[week]) merged[week] = {};
+    for (const age of AGE_ORDER) {
+      if (fresh[week][age]) merged[week][age] = fresh[week][age];
+    }
+  }
+  // report any (week, age) present in the previous version but absent from this run's fetch,
+  // for weeks the fresh fetch did touch (older weeks the fetch didn't even reach aren't a concern)
+  for (const week of Object.keys(fresh)) {
+    for (const age of AGE_ORDER) {
+      const hadBefore = existing[week] && existing[week][age];
+      const hasNow = fresh[week] && fresh[week][age];
+      if (hadBefore && !hasNow) fallbackWeeks.push(`${label} ${week}/${age}`);
+    }
+  }
+  return { merged, fallbackWeeks };
+}
+
+const existingHtmlForMerge = readFileSync(indexPath, "utf8");
+const existingSku = readExistingRaw(existingHtmlForMerge, "RAW_SKU");
+const existingProduct = readExistingRaw(existingHtmlForMerge, "RAW_PRODUCT");
+
+const skuMerge = mergeWithExisting(sku.data, existingSku, "SKU");
+const productMerge = mergeWithExisting(product.data, existingProduct, "상품명");
+sku.data = skuMerge.merged;
+product.data = productMerge.merged;
+const allFallbacks = [...skuMerge.fallbackWeeks, ...productMerge.fallbackWeeks];
+
 const revenueByDate = {};
 for (const [, date, orders, revenue, aov] of revenueLines) {
   revenueByDate[date] = { date, orders: Number(orders), revenue: Number(revenue), aov: Number(aov) };
@@ -147,7 +196,7 @@ const revenueSerialized =
   (revenueRows.length ? "\n  " : "") +
   "];\n  // REVENUE_DATA_END";
 
-let html = readFileSync(indexPath, "utf8");
+let html = existingHtmlForMerge;
 
 function replaceBlock(html, varName, serializedText) {
   const blockRe = new RegExp(`var ${varName} = \\{[\\s\\S]*?\\n {2}\\};\\n {2}// ${varName}_DATA_END`);
@@ -175,3 +224,10 @@ console.log(
     (incompleteWeekRowsDropped ? `, ${incompleteWeekRowsDropped} row(s) dropped (in-progress week, not yet Mon-Sun complete)` : "") +
     `. SKU weeks: ${skuSerialized.weekKeys.join(", ")}. 상품명 weeks: ${productSerialized.weekKeys.join(", ")}. revenue days: ${revenueRows.length}`
 );
+if (allFallbacks.length) {
+  console.warn(
+    `WARNING: this fetch was missing rows for ${allFallbacks.length} (week/age) group(s) that a previous run had ` +
+      `(likely Drive export truncation, not real data loss) -- kept the previous values instead of blanking them: ` +
+      allFallbacks.join(", ")
+  );
+}
